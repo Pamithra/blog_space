@@ -1,0 +1,30 @@
+# System files
+.DS_Store
+Thumbs.db
+
+# IDE / Editor
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Environment & config
+.env
+inc/config.php
+
+# Uploads (user images)
+uploads/
+
+# Cache / logs
+*.log
+/tmp/
+cache/
+session/
+
+# Vendor libraries (if you ever add composer)
+vendor/
+
+# OS generated files
+*.bak
+*.swp
+*.tmp
