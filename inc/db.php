@@ -12,10 +12,20 @@ try {
         PDO::ATTR_EMULATE_PREPARES   => false,
     ];
 
-    // Enable SSL if SSL certificate path is provided or if port indicates cloud provider
+    // Detect SSL CA bundle path
+    $caFile = null;
     if (!empty(DB_SSL_CA) && file_exists(DB_SSL_CA)) {
-        $options[PDO::MYSQL_ATTR_SSL_CA] = DB_SSL_CA;
-    } elseif (getenv('MYSQL_ATTR_SSL') === 'true' || DB_PORT == 4000) { // Default TiDB cloud port
+        $caFile = DB_SSL_CA;
+    } elseif (file_exists(__DIR__ . '/cacert.pem')) {
+        $caFile = __DIR__ . '/cacert.pem';
+    } elseif (file_exists('/etc/ssl/certs/ca-certificates.crt')) {
+        $caFile = '/etc/ssl/certs/ca-certificates.crt';
+    }
+
+    // Enable SSL for cloud databases (TiDB port 4000 or any non-localhost host)
+    $isRemote = (DB_PORT == 4000) || (DB_HOST !== 'localhost' && DB_HOST !== '127.0.0.1');
+    if ($caFile && $isRemote) {
+        $options[PDO::MYSQL_ATTR_SSL_CA] = $caFile;
         $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
     }
 

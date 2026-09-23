@@ -1,7 +1,7 @@
 # Dockerfile for BlogSpace on Render
 FROM php:8.2-apache
 
-# Install system dependencies & libraries for GD and MySQL
+# Install system dependencies & libraries for GD, SSL, and MySQL
 RUN apt-get update && apt-get install -y \
     libpng-dev \
     libjpeg-dev \
@@ -9,6 +9,8 @@ RUN apt-get update && apt-get install -y \
     libwebp-dev \
     libzip-dev \
     unzip \
+    ca-certificates \
+    && update-ca-certificates \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install -j$(nproc) gd pdo pdo_mysql \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
