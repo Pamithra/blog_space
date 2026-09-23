@@ -1,4 +1,6 @@
--- init.sql (final)
+-- init.sql
+-- Database Schema for BlogSpace Application
+
 CREATE TABLE IF NOT EXISTS user (
   id INT AUTO_INCREMENT PRIMARY KEY,
   username VARCHAR(50) NOT NULL UNIQUE,
@@ -6,6 +8,7 @@ CREATE TABLE IF NOT EXISTS user (
   password VARCHAR(255) NOT NULL,
   role VARCHAR(30) DEFAULT 'user',
   profile_image VARCHAR(255) DEFAULT NULL,
+  bio TEXT DEFAULT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -19,10 +22,11 @@ CREATE TABLE IF NOT EXISTS blogPost (
   user_id INT NOT NULL,
   category_id INT DEFAULT NULL,
   title VARCHAR(255) NOT NULL,
-  content TEXT NOT NULL,
+  content MEDIUMTEXT NOT NULL,
   image VARCHAR(255) DEFAULT NULL,
+  views INT NOT NULL DEFAULT 0,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NULL DEFAULT NULL,
+  updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
   FOREIGN KEY (category_id) REFERENCES category(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -66,9 +70,47 @@ CREATE TABLE IF NOT EXISTS newsletter (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- sample admin (password: Password123)
-INSERT INTO user (username, email, password, role) VALUES
-('admin', 'admin@example.com', '$2y$10$e0NR2g3r4Yg2qg2ZQj9kUuZ6VQzQm5VfVf9kX8xj3pfG9h6vQ4Z6K', 'admin');
+-- Safe column additions for existing databases
+-- (Ignored if columns already exist)
+SET @dbname = DATABASE();
+SET @tablename = "blogPost";
+SET @columnname = "views";
+SET @preparedStatement = (SELECT IF(
+  (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE
+      TABLE_SCHEMA = @dbname
+      AND TABLE_NAME = @tablename
+      AND COLUMN_NAME = @columnname
+  ) > 0,
+  "SELECT 1",
+  "ALTER TABLE blogPost ADD COLUMN views INT NOT NULL DEFAULT 0 AFTER image;"
+));
+PREPARE alterIfNotExists FROM @preparedStatement;
+EXECUTE alterIfNotExists;
+DEALLOCATE PREPARE alterIfNotExists;
 
-INSERT IGNORE INTO category (name) VALUES ('General'), ('Technology'), ('Lifestyle'), ('Tutorial');
-INSERT IGNORE INTO tag (name) VALUES ('php'), ('web'), ('tips'), ('life');
+SET @tablename = "user";
+SET @columnname = "bio";
+SET @preparedStatement = (SELECT IF(
+  (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE
+      TABLE_SCHEMA = @dbname
+      AND TABLE_NAME = @tablename
+      AND COLUMN_NAME = @columnname
+  ) > 0,
+  "SELECT 1",
+  "ALTER TABLE user ADD COLUMN bio TEXT DEFAULT NULL AFTER profile_image;"
+));
+PREPARE alterIfNotExists FROM @preparedStatement;
+EXECUTE alterIfNotExists;
+DEALLOCATE PREPARE alterIfNotExists;
+
+-- Default categories and tags
+INSERT IGNORE INTO category (name) VALUES ('General'), ('Technology'), ('Web Development'), ('Lifestyle'), ('Tutorial');
+INSERT IGNORE INTO tag (name) VALUES ('php'), ('web'), ('javascript'), ('mysql'), ('css'), ('tips');
+
+-- Default admin user (Password: Password123)
+INSERT IGNORE INTO user (username, email, password, role, bio) VALUES
+('admin', 'admin@example.com', '$2y$10$e0NR2g3r4Yg2qg2ZQj9kUuZ6VQzQm5VfVf9kX8xj3pfG9h6vQ4Z6K', 'admin', 'Lead Administrator of BlogSpace.');

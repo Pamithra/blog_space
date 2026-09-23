@@ -1,49 +1,55 @@
 <?php
+// like.php
+// Asynchronous like/unlike handler
+
 require_once __DIR__ . '/inc/config.php';
 require_once __DIR__ . '/inc/db.php';
 require_once __DIR__ . '/inc/helpers.php';
 
 header('Content-Type: application/json');
 
-// Must be logged in to like
 if (!is_logged_in()) {
-  echo json_encode(['ok' => false, 'error' => 'Login required']);
-  exit;
+    echo json_encode(['ok' => false, 'error' => 'You must log in to like this post.']);
+    exit;
 }
 
-// Check CSRF token
-if (empty($_POST['_csrf']) || $_POST['_csrf'] !== ($_SESSION['_csrf'] ?? '')) {
-  echo json_encode(['ok' => false, 'error' => 'Invalid CSRF token']);
-  exit;
+if (!csrf_verify($_POST['_csrf'] ?? '')) {
+    echo json_encode(['ok' => false, 'error' => 'Session expired. Please refresh the page.']);
+    exit;
 }
 
-$post_id = (int)($_POST['id'] ?? 0);
-$user_id = $_SESSION['user']['id'] ?? 0;
+$postId = (int)($_POST['id'] ?? 0);
+$userId = current_user_id();
 
-if ($post_id <= 0) {
-  echo json_encode(['ok' => false, 'error' => 'Invalid post']);
-  exit;
+if ($postId <= 0) {
+    echo json_encode(['ok' => false, 'error' => 'Invalid article reference.']);
+    exit;
 }
 
-// Check if already liked
-$stmt = $pdo->prepare('SELECT id FROM post_like WHERE post_id = :pid AND user_id = :uid');
-$stmt->execute([':pid' => $post_id, ':uid' => $user_id]);
-$like = $stmt->fetch();
+// Check current like status
+$stmt = $pdo->prepare('SELECT id FROM post_like WHERE post_id = :pid AND user_id = :uid LIMIT 1');
+$stmt->execute([':pid' => $postId, ':uid' => $userId]);
+$existingLike = $stmt->fetch();
 
-if ($like) {
-  // Unlike
-  $pdo->prepare('DELETE FROM post_like WHERE id = :id')->execute([':id' => $like['id']]);
-  $liked = false;
+if ($existingLike) {
+    // Remove like
+    $pdo->prepare('DELETE FROM post_like WHERE id = :id')->execute([':id' => $existingLike['id']]);
+    $liked = false;
 } else {
-  // Like
-  $pdo->prepare('INSERT INTO post_like (post_id, user_id, created_at) VALUES (:pid, :uid, NOW())')
-      ->execute([':pid' => $post_id, ':uid' => $user_id]);
-  $liked = true;
+    // Add like
+    $pdo->prepare('INSERT INTO post_like (post_id, user_id, created_at) VALUES (:pid, :uid, NOW())')
+        ->execute([':pid' => $postId, ':uid' => $userId]);
+    $liked = true;
 }
 
-// Get updated count
+// Fetch total updated likes
 $countStmt = $pdo->prepare('SELECT COUNT(*) FROM post_like WHERE post_id = :pid');
-$countStmt->execute([':pid' => $post_id]);
-$count = $countStmt->fetchColumn();
+$countStmt->execute([':pid' => $postId]);
+$totalLikes = (int)$countStmt->fetchColumn();
 
-echo json_encode(['ok' => true, 'count' => $count, 'liked' => $liked]);
+echo json_encode([
+    'ok'    => true,
+    'count' => $totalLikes,
+    'liked' => $liked
+]);
+exit;

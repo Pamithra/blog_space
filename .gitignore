@@ -8,12 +8,14 @@ Thumbs.db
 *.sublime-workspace
 *.sublime-project
 
-# Environment & config
+# Environment & local secrets
 .env
-inc/config.php
+.env.local
+.env.*.local
 
-# Uploads (user images)
-uploads/
+# Uploads (local media)
+uploads/*
+!uploads/.gitkeep
 
 # Cache / logs
 *.log
@@ -21,7 +23,7 @@ uploads/
 cache/
 session/
 
-# Vendor libraries (if you ever add composer)
+# Vendor libraries
 vendor/
 
 # OS generated files
