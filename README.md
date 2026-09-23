@@ -77,20 +77,33 @@ You can use the built-in administrator account to test all features:
 *(Or click **Register** to create your own new account in a few seconds!)*
 
 ---
+│   ├── cacert.pem             # Mozilla trusted root CA bundle for cloud SSL
+│   ├── config.example.php     # Template configuration file
+│   ├── config.php             # Dynamic environment & session configuration
+│   ├── db.php                 # PDO database layer with SSL support
+│   ├── footer.php             # Unified layout footer & script imports
+│   ├── db.php                 # PDO database layer with SSL auto-negotiation
+│   ├── footer.php             # Clean layout footer & script imports
+│   ├── header.php             # SEO metadata, navbar & theme toggle
+│   └── helpers.php            # Security, Markdown parser, image handlers
+├── posts/
+│   ├── comment_add.php        # Comment processing endpoint
+│   ├── delete.php             # Post deletion with transaction
+│   ├── edit.php               # EasyMDE post editor
+│   ├── edit.php               # EasyMDE post editor with preloaded tags
+│   ├── new.php                # EasyMDE post creator
+│   └── view.php               # Single post view with view tracking
+│   └── view.php               # Single post view with view tracking & XSS protection
+├── uploads/                   # Local media storage directory
+├── author.php                 # Public author profile & published articles
+├── index.php                  # Homepage with search, filter & pagination
+├── init.sql                   # Database initialization & migrations
+├── Dockerfile                 # Render / Docker production container
+├── .htaccess                  # Apache rewrite & security headers
+└── README.md                  # Documentation & deployment guide
+└── README.md                  # Project documentation & setup guide
+```
 
-## 📁 Project Folders Explained
-
-* **`admin/`**: Contains the admin dashboard to see user and post numbers.
-* **`assets/`**: Styles (CSS), interactive scripts (JavaScript), and default avatars.
-* **`auth/`**: Login, registration, and logout pages.
-* **`inc/`**: Configuration, database connection, header, and footer files.
-* **`posts/`**: Pages to view, create, edit, and delete blog posts.
-* **`uploads/`**: Stores uploaded blog images and profile pictures.
-* **`author.php`**: The public author page showing all posts by a specific writer.
-* **`index.php`**: The main homepage with search, categories, and articles.
-* **`init.sql`**: The database file with all tables and starter categories.
-
----
 
 ## 👨‍💻 Author
 
