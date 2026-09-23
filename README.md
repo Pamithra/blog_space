@@ -119,10 +119,4 @@ Blog space/
 
 ---
 
-## 👨‍💻 Author
 
-**Pamithra Jayawardena**  
-Undergraduate Student – B.Sc. (Hons) in Information Technology & Management  
-Faculty of Information Technology, University of Moratuwa  
-* GitHub: [@Pamithra](https://github.com/Pamithra)  
-* Email: pamithrajithmini2004@gmail.com
