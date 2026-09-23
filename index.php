@@ -145,9 +145,13 @@ require_once __DIR__ . '/inc/header.php';
       <article class="blog-card">
         <div class="card-img-wrapper">
           <?php if (!empty($imageUrl)): ?>
-            <img src="<?php echo $imageUrl; ?>" alt="<?php echo htmlspecialchars($p['title']); ?>" class="card-img" loading="lazy">
+            <img src="<?php echo $imageUrl; ?>" 
+                 alt="<?php echo htmlspecialchars($p['title']); ?>" 
+                 class="card-img" 
+                 loading="lazy"
+                 onerror="this.onerror=null;this.parentElement.classList.add('img-fallback');this.style.display='none';">
           <?php else: ?>
-            <div style="width:100%;height:100%;background:linear-gradient(135deg, var(--surface), var(--card));display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:32px;">
+            <div class="card-img-placeholder">
               📰
             </div>
           <?php endif; ?>

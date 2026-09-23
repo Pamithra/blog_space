@@ -109,7 +109,10 @@ require_once __DIR__ . '/../inc/header.php';
 
   <!-- Featured Image -->
   <?php if (!empty($featuredImageUrl)): ?>
-    <img src="<?php echo $featuredImageUrl; ?>" alt="<?php echo htmlspecialchars($post['title']); ?>" class="article-featured-img">
+    <img src="<?php echo $featuredImageUrl; ?>" 
+         alt="<?php echo htmlspecialchars($post['title']); ?>" 
+         class="article-featured-img" 
+         onerror="this.style.display='none';">
   <?php endif; ?>
 
   <!-- Rendered Safe Markdown Content (XSS-protected) -->

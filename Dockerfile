@@ -8,11 +8,13 @@ RUN apt-get update && apt-get install -y \
     libfreetype6-dev \
     libwebp-dev \
     libzip-dev \
+    libcurl4-openssl-dev \
+    pkg-config \
     unzip \
     ca-certificates \
     && update-ca-certificates \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
-    && docker-php-ext-install -j$(nproc) gd pdo pdo_mysql \
+    && docker-php-ext-install -j$(nproc) gd pdo pdo_mysql curl \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Enable Apache rewrite and headers modules

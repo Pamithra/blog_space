@@ -70,6 +70,14 @@ CREATE TABLE IF NOT EXISTS newsletter (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS uploaded_image (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  mime_type VARCHAR(50) NOT NULL,
+  file_data LONGBLOB NOT NULL,
+  file_size INT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- Safe column additions for existing databases
 -- (Ignored if columns already exist)
 SET @dbname = DATABASE();

@@ -132,13 +132,17 @@ function render_markdown($markdown) {
 }
 
 /**
- * Get display URL for an image (supports Cloudinary remote URLs, local uploads, and fallbacks)
+ * Get display URL for an image (supports database endpoints, Cloudinary URLs, local uploads, and fallbacks)
  */
 function get_image_url($imagePath, $fallback = '') {
     if (empty($imagePath)) return $fallback;
     // Check if image is an external or Cloudinary URL
     if (preg_match('#^https?://#i', $imagePath)) {
         return $imagePath;
+    }
+    // Check if it is a database-backed image endpoint
+    if (strpos($imagePath, 'image.php') !== false) {
+        return BASE_URL . ltrim($imagePath, '/');
     }
     return BASE_URL . 'uploads/' . htmlspecialchars($imagePath);
 }
@@ -200,6 +204,81 @@ function resize_image_gd($srcPath, $destPath, $maxWidth, $maxHeight) {
 }
 
 /**
+ * Ensure uploaded_image table exists in the database
+ */
+function ensure_uploaded_image_table($pdo) {
+    static $ensured = false;
+    if ($ensured || !$pdo) return;
+    try {
+        $pdo->exec("
+            CREATE TABLE IF NOT EXISTS uploaded_image (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                mime_type VARCHAR(50) NOT NULL,
+                file_data LONGBLOB NOT NULL,
+                file_size INT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+        ");
+        $ensured = true;
+    } catch (Exception $e) {
+        error_log('Failed to ensure uploaded_image table: ' . $e->getMessage());
+    }
+}
+
+/**
+ * Store uploaded image binary directly into persistent MySQL database
+ * Resizes and optimizes using GD to conserve space and bandwidth.
+ */
+function save_image_to_db($filePath, $mime, $prefix = 'post', $pdo = null) {
+    if ($pdo === null) {
+        global $pdo;
+    }
+    if (!$pdo) {
+        return null;
+    }
+
+    ensure_uploaded_image_table($pdo);
+
+    // Calculate maximum bounds based on image usage type
+    $maxW = ($prefix === 'avatar') ? 400 : 1200;
+    $maxH = ($prefix === 'avatar') ? 400 : 800;
+
+    $tempOptimized = tempnam(sys_get_temp_dir(), 'opt_img_');
+    $sourceToRead = $filePath;
+    $savedMime = $mime;
+
+    if (resize_image_gd($filePath, $tempOptimized, $maxW, $maxH)) {
+        $sourceToRead = $tempOptimized;
+    }
+
+    $binaryData = @file_get_contents($sourceToRead);
+    if ($tempOptimized && file_exists($tempOptimized)) {
+        @unlink($tempOptimized);
+    }
+
+    if ($binaryData === false || strlen($binaryData) === 0) {
+        return null;
+    }
+
+    try {
+        $stmt = $pdo->prepare('INSERT INTO uploaded_image (mime_type, file_data, file_size) VALUES (:mime, :data, :size)');
+        $stmt->bindValue(':mime', $savedMime);
+        $stmt->bindValue(':data', $binaryData, PDO::PARAM_LOB);
+        $stmt->bindValue(':size', strlen($binaryData), PDO::PARAM_INT);
+        $stmt->execute();
+
+        $imageId = (int)$pdo->lastInsertId();
+        if ($imageId > 0) {
+            return 'image.php?id=' . $imageId;
+        }
+    } catch (Exception $e) {
+        error_log('Database image upload error: ' . $e->getMessage());
+    }
+
+    return null;
+}
+
+/**
  * Upload Image to Cloudinary (for persistent cloud storage on Render)
  */
 function upload_to_cloudinary($filePath) {
@@ -245,10 +324,12 @@ function upload_to_cloudinary($filePath) {
 }
 
 /**
- * Dual-Mode Image Upload Handler:
- * Uploads to Cloudinary if configured; otherwise saves to local UPLOAD_DIR.
+ * Robust Image Upload Handler:
+ * 1. Uses Cloudinary if configured.
+ * 2. Saves to persistent MySQL database (Approach 2) - survives all Render redeploys and restarts.
+ * 3. Falls back to local UPLOAD_DIR if database is unavailable.
  */
-function handle_image_upload($fileField, $prefix = 'img') {
+function handle_image_upload($fileField, $prefix = 'post') {
     if (empty($_FILES[$fileField]) || $_FILES[$fileField]['error'] === UPLOAD_ERR_NO_FILE) {
         return null;
     }
@@ -267,7 +348,7 @@ function handle_image_upload($fileField, $prefix = 'img') {
         return null;
     }
 
-    // Try Cloudinary first if configured
+    // 1. Try Cloudinary first if configured
     if (!empty(CLOUDINARY_CLOUD_NAME)) {
         $cloudUrl = upload_to_cloudinary($f['tmp_name']);
         if ($cloudUrl) {
@@ -275,7 +356,13 @@ function handle_image_upload($fileField, $prefix = 'img') {
         }
     }
 
-    // Fallback to local storage (for XAMPP/WAMP or server with local volume)
+    // 2. Save directly to persistent MySQL database (Survives Render container restarts)
+    $dbImageUrl = save_image_to_db($f['tmp_name'], $mime, $prefix);
+    if ($dbImageUrl) {
+        return $dbImageUrl;
+    }
+
+    // 3. Fallback to local storage (for environments with persistent disk)
     if (!is_dir(UPLOAD_DIR)) {
         @mkdir(UPLOAD_DIR, 0755, true);
     }
@@ -298,6 +385,7 @@ function handle_image_upload($fileField, $prefix = 'img') {
 
     return $name;
 }
+
 
 /**
  * Flash notification helper

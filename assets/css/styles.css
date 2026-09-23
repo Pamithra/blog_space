@@ -439,6 +439,24 @@ img {
   background: var(--surface-hover);
 }
 
+.card-img-wrapper.img-fallback,
+.card-img-placeholder {
+  background: linear-gradient(135deg, var(--surface), var(--card));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--text-muted);
+  font-size: 32px;
+}
+
+.card-img-wrapper.img-fallback::before {
+  content: '📰';
+  font-size: 32px;
+  opacity: 0.5;
+}
+
 .card-img {
   width: 100%;
   height: 100%;
