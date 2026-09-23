@@ -4,9 +4,6 @@ A clean, modern, and easy-to-use blogging website built with **PHP**, **MySQL**,
 
 Users can register, write articles using a formatting editor with live preview, like posts, leave comments, and switch between dark and light themes.
 
-🌐 **Live Website Link**: [https://blog-space-b5ef.onrender.com](https://blog-space-b5ef.onrender.com)  
-📁 **GitHub Repository**: [https://github.com/Pamithra/blog_space](https://github.com/Pamithra/blog_space)
-
 ---
 
 ## ✨ Features
