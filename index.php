@@ -22,8 +22,9 @@ $where = [];
 $params = [];
 
 if ($search !== '') {
-    $where[] = '(p.title LIKE :search OR p.content LIKE :search)';
-    $params[':search'] = '%' . $search . '%';
+    $where[] = '(p.title LIKE :search1 OR p.content LIKE :search2)';
+    $params[':search1'] = '%' . $search . '%';
+    $params[':search2'] = '%' . $search . '%';
 }
 
 if ($categoryId > 0) {
