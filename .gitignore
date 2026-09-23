@@ -13,9 +13,9 @@ Thumbs.db
 .env.local
 .env.*.local
 
-# Uploads (local media)
-uploads/*
-!uploads/.gitkeep
+# Uploads (media)
+# uploads/*
+# !uploads/.gitkeep
 
 # Cache / logs
 *.log
