@@ -64,17 +64,6 @@ In your web browser, visit:
 
 ---
 
-## 🔑 Default Accounts for Testing
-
-You can use the built-in administrator account to test all features:
-
-* **Username**: `admin`
-* **Password**: `Password123`
-
-*(Or click **Register** to create your own new account in a few seconds!)*
-
----
-
 ## 📁 Project Structure
 
 ```text
