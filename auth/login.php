@@ -28,8 +28,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($loginInput) || empty($password)) {
         set_flash('Please fill in both fields.', 'error');
     } else {
-        $stmt = $pdo->prepare('SELECT * FROM `user` WHERE username = :u OR email = :u LIMIT 1');
-        $stmt->execute([':u' => $loginInput]);
+        $stmt = $pdo->prepare('SELECT * FROM `user` WHERE username = :username OR email = :email LIMIT 1');
+        $stmt->execute([
+            ':username' => $loginInput,
+            ':email'    => $loginInput
+        ]);
         $user = $stmt->fetch();
 
         if ($user && password_verify($password, $user['password'])) {
@@ -73,7 +76,12 @@ require_once __DIR__ . '/../inc/header.php';
 
     <div class="form-group">
       <label class="form-label">Password</label>
-      <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+      <div class="password-wrapper">
+        <input type="password" name="password" id="login-password" class="form-control" placeholder="••••••••" required>
+        <button type="button" class="password-toggle-btn" aria-label="Toggle password visibility" onclick="togglePasswordVisibility('login-password', this)">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        </button>
+      </div>
     </div>
 
     <button type="submit" class="btn btn-primary" style="width:100%;margin-top:10px;padding:12px;">Log In</button>
