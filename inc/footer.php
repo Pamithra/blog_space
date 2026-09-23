@@ -14,7 +14,7 @@
           <span class="brand-badge">B</span>
           <span><?php echo htmlspecialchars(SITE_NAME); ?></span>
         </div>
-        <p>A full-stack blogging and publishing platform crafted with PHP, MySQL, and modern web standards.</p>
+        <p>A modern publishing space to read, write, and share insightful stories and ideas.</p>
       </div>
 
       <!-- Quick Navigation -->
@@ -46,7 +46,7 @@
 
     <!-- Bottom Copyright -->
     <div class="footer-bottom">
-      <p>&copy; <?php echo date('Y'); ?> <?php echo htmlspecialchars(SITE_NAME); ?>. Built with PHP &amp; MySQL. All rights reserved.</p>
+      <p>&copy; <?php echo date('Y'); ?> <?php echo htmlspecialchars(SITE_NAME); ?>. All rights reserved.</p>
     </div>
   </div>
 </footer>
