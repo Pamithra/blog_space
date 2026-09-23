@@ -77,33 +77,47 @@ You can use the built-in administrator account to test all features:
 *(Or click **Register** to create your own new account in a few seconds!)*
 
 ---
-│   ├── cacert.pem             # Mozilla trusted root CA bundle for cloud SSL
-│   ├── config.example.php     # Template configuration file
-│   ├── config.php             # Dynamic environment & session configuration
-│   ├── db.php                 # PDO database layer with SSL support
-│   ├── footer.php             # Unified layout footer & script imports
-│   ├── db.php                 # PDO database layer with SSL auto-negotiation
-│   ├── footer.php             # Clean layout footer & script imports
-│   ├── header.php             # SEO metadata, navbar & theme toggle
-│   └── helpers.php            # Security, Markdown parser, image handlers
+
+## 📁 Project Structure
+
+```text
+Blog space/
+├── admin/
+│   └── index.php              # Admin dashboard & analytics
+├── assets/
+│   ├── css/
+│   │   └── styles.css         # Styling (Dark & Light themes)
+│   ├── js/
+│   │   └── scripts.js         # Interactive scripts, likes & toasts
+│   └── default-avatar.svg     # Default profile picture
+├── auth/
+│   ├── login.php              # Login page with password eye toggle
+│   ├── logout.php             # Logout script
+│   └── register.php           # User registration
+├── inc/
+│   ├── cacert.pem             # SSL certificate for cloud database
+│   ├── config.example.php     # Example configuration file
+│   ├── config.php             # Main website configuration
+│   ├── db.php                 # Database connection layer
+│   ├── footer.php             # Page footer & newsletter form
+│   ├── header.php             # Navigation bar & theme switch
+│   └── helpers.php            # Security, Markdown & helper functions
 ├── posts/
-│   ├── comment_add.php        # Comment processing endpoint
-│   ├── delete.php             # Post deletion with transaction
-│   ├── edit.php               # EasyMDE post editor
-│   ├── edit.php               # EasyMDE post editor with preloaded tags
-│   ├── new.php                # EasyMDE post creator
-│   └── view.php               # Single post view with view tracking
-│   └── view.php               # Single post view with view tracking & XSS protection
-├── uploads/                   # Local media storage directory
-├── author.php                 # Public author profile & published articles
-├── index.php                  # Homepage with search, filter & pagination
-├── init.sql                   # Database initialization & migrations
-├── Dockerfile                 # Render / Docker production container
-├── .htaccess                  # Apache rewrite & security headers
-└── README.md                  # Documentation & deployment guide
-└── README.md                  # Project documentation & setup guide
+│   ├── comment_add.php        # Comment submission handler
+│   ├── delete.php             # Delete blog post
+│   ├── edit.php               # Edit blog post (Markdown editor)
+│   ├── new.php                # Write new post (Markdown editor)
+│   └── view.php               # Single article view & reading time
+├── uploads/                   # Uploaded blog images
+├── author.php                 # Author profile & their articles
+├── index.php                  # Homepage with search & categories
+├── init.sql                   # Database tables and sample data
+├── Dockerfile                 # Cloud container configuration
+├── .htaccess                  # Server security rules
+└── README.md                  # Project documentation
 ```
 
+---
 
 ## 👨‍💻 Author
 
